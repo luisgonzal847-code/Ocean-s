@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean's Store</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── ESTILOS EXTRA PARA CLIENTE Y LANDING ── */
+.landing-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh;
+    background: var(--azul-profundo);
+    background-image: repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.02) 39px,rgba(255,255,255,0.02) 40px);
+    padding: 2rem; text-align: center;
+}
+.landing-logo {
+    font-family: var(--fuente-titulo); font-size: 3rem; font-weight: 700;
+    color: var(--blanco); margin-bottom: .4rem;
+}
+.landing-logo span { color: var(--azul-claro); }
+.landing-tagline { color: rgba(255,255,255,.55); font-size: .95rem; margin-bottom: 3rem; font-weight: 300; }
+.landing-cards { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+.landing-card {
+    background: rgba(255,255,255,.07); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+    padding: 2rem 2.5rem; cursor: pointer; transition: all .2s; color: var(--blanco);
+    font-family: var(--fuente);
+}
+.landing-card:hover { background: rgba(255,255,255,.13); transform: translateY(-3px); }
+.landing-card .lc-icon { font-size: 2.8rem; margin-bottom: .8rem; }
+.landing-card h2 { font-family: var(--fuente-titulo); font-size: 1.2rem; margin-bottom: .3rem; }
+.landing-card p { font-size: .85rem; opacity: .65; font-weight: 300; }
+
+/* Botones de modo de pago */
+.pay-mode-btn {
+    flex: 1; padding: .55rem .8rem; border-radius: var(--radio);
+    border: 1.5px solid var(--arena-oscura); background: var(--blanco);
+    color: var(--texto-oscuro); font-family: var(--fuente); font-size: .84rem;
+    cursor: pointer; transition: all .18s; font-weight: 500;
+}
+.pay-mode-btn.active {
+    background: var(--azul-mar); border-color: var(--azul-mar);
+    color: var(--blanco);
+}
+.pay-mode-btn:hover:not(.active) { background: var(--arena-clara); }
+
+/* Botón cancelar pedido */
+.btn-cancelar {
+    background: transparent; border: 1.5px solid var(--rojo-alerta);
+    color: var(--rojo-alerta); padding: .45rem 1rem; border-radius: var(--radio);
+    cursor: pointer; font-family: var(--fuente); font-size: .82rem;
+    font-weight: 600; transition: all .2s; margin-top: .4rem;
+}
+.btn-cancelar:hover { background: var(--rojo-alerta); color: var(--blanco); }
+
+.client-nav-user {
+    display: none; align-items: center; gap: .5rem;
+    color: rgba(255,255,255,.7); font-size: .82rem; margin-left: auto;
+}
+.btn-logout {
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+    color: var(--blanco); padding: .3rem .65rem; border-radius: var(--radio);
+    cursor: pointer; font-size: .78rem; font-family: var(--fuente); transition: background .2s;
+}
+.btn-logout:hover { background: var(--rojo-alerta); }
+
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.product-card {
+    background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra);
+    border: 1px solid rgba(11,46,61,.07); overflow: hidden;
+    transition: transform .2s, box-shadow .2s; position: relative;
+}
+.product-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--azul-mar), var(--azul-claro));
+}
+.product-card:hover { transform: translateY(-2px); box-shadow: var(--sombra-md); }
+.product-card .pc-img {
+    height: 110px;
+    background: linear-gradient(135deg, var(--azul-medio), var(--azul-profundo));
+    display: flex; align-items: center; justify-content: center; font-size: 2.8rem;
+}
+.product-card .pc-body { padding: .9rem 1rem 1rem; }
+.product-card .pc-cat { font-size: .7rem; color: var(--azul-claro); font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: .2rem; }
+.product-card .pc-name { font-family: var(--fuente-titulo); font-size: .92rem; color: var(--azul-profundo); margin-bottom: .4rem; font-weight: 700; }
+.product-card .pc-price { font-size: 1.05rem; font-weight: 700; color: var(--azul-mar); }
+.product-card .pc-btn {
+    margin-top: .7rem; width: 100%; background: var(--azul-profundo); color: var(--blanco);
+    border: none; padding: .45rem; border-radius: var(--radio); cursor: pointer;
+    font-size: .82rem; font-weight: 600; font-family: var(--fuente); transition: background .2s;
+}
+.product-card .pc-btn:hover { background: var(--azul-mar); }
+.product-card .pc-btn:disabled {
+    background: #b9c2c8; color: #6f7a80; cursor: not-allowed;
+}
+.product-card .pc-btn:disabled:hover { background: #b9c2c8; }
+
+/* Insignia de estado (Disponible / No disponible) sobre la tarjeta */
+.pc-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; padding: .2rem .55rem; border-radius: 999px;
+    color: var(--blanco); z-index: 1;
+}
+.pc-badge.disponible    { background: var(--verde-ok); }
+.pc-badge.no-disponible { background: var(--rojo-alerta); }
+
+/* Tarjeta "apagada" cuando el producto no está disponible */
+.product-card.no-disponible .pc-img { filter: grayscale(60%); opacity: .75; }
+.product-card.no-disponible .pc-name,
+.product-card.no-disponible .pc-price { opacity: .6; }
+
+.cart-item {
+    display: flex; align-items: center; gap: .8rem;
+    padding: .55rem 0; border-bottom: 1px dashed var(--arena-oscura);
+    font-size: .88rem;
+}
+.cart-item:last-child { border-bottom: none; }
+.ci-name { flex: 1; font-weight: 500; color: var(--texto-oscuro); }
+.ci-qty { width: 58px; text-align: center; padding: .35rem .5rem; font-size: .84rem; }
+.ci-price { width: 80px; text-align: right; font-weight: 700; color: var(--azul-mar); }
+.ci-del {
+    background: transparent; border: 1px solid var(--arena-oscura); color: var(--rojo-alerta);
+    border-radius: var(--radio); cursor: pointer; padding: .2rem .45rem; font-size: .8rem; transition: all .2s;
+}
+.ci-del:hover { background: var(--rojo-alerta); color: var(--blanco); border-color: var(--rojo-alerta); }
+.cart-total-row {
+    display: flex; justify-content: flex-end; margin-top: .8rem;
+    font-family: var(--fuente-titulo); font-size: 1.1rem; font-weight: 700;
+    color: var(--azul-profundo); padding-top: .6rem; border-top: 1px solid var(--arena-oscura);
+}
+
+.checkout-steps { display: flex; margin-bottom: 1.5rem; }
+.cs-step {
+    flex: 1; text-align: center; padding: .5rem; font-size: .75rem; font-weight: 600;
+    color: rgba(11,46,61,.35); border-bottom: 2px solid var(--arena-oscura); transition: all .3s;
+    font-family: var(--fuente); letter-spacing: .3px;
+}
+.cs-step.active { color: var(--azul-profundo); border-bottom-color: var(--azul-mar); }
+.cs-step.done   { color: var(--verde-ok);     border-bottom-color: var(--verde-ok); }
+
+.order-summary-box {
+    background: var(--arena-clara); border-radius: var(--radio);
+    border: 1px solid var(--arena-oscura); padding: 1rem 1.1rem; margin-bottom: 1rem;
+}
+.os-row { display: flex; justify-content: space-between; font-size: .86rem; padding: .22rem 0; color: var(--texto-oscuro); }
+.os-row.os-total {
+    font-family: var(--fuente-titulo); font-size: 1rem; font-weight: 700;
+    border-top: 1px solid var(--arena-oscura); margin-top: .5rem; padding-top: .5rem;
+}
+
+.orders-list .order-card {
+    background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra);
+    border: 1px solid rgba(11,46,61,.07); padding: 1rem 1.2rem; margin-bottom: .9rem;
+    position: relative; overflow: hidden;
+}
+.orders-list .order-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--azul-mar), var(--azul-claro));
+}
+.order-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+.order-card-id { font-family: var(--fuente-titulo); font-size: .95rem; color: var(--azul-profundo); font-weight: 700; }
+.order-card-row { display: flex; justify-content: space-between; font-size: .84rem; color: var(--texto-medio); padding: .15rem 0; }
+.order-card-total { font-weight: 700; color: var(--azul-mar); }
+
+/* Bloque de acción dentro de la tarjeta de pedido */
+.order-action-box {
+    margin-top: .8rem; padding: .8rem 1rem;
+    background: var(--arena-clara); border: 1px solid var(--arena-oscura);
+    border-radius: var(--radio);
+}
+.order-action-box .form-grupo { margin-bottom: .45rem; }
+.order-action-box label { font-size: .78rem; }
+.order-action-box select,
+.order-action-box input { font-size: .82rem; padding: .3rem .5rem; }
+
+.badge {
+    display: inline-block; padding: .18rem .5rem; border-radius: 20px;
+    font-size: .7rem; font-weight: 700; letter-spacing: .3px;
+}
+.badge-green { background: #d4edda; color: var(--verde-ok); }
+.badge-red   { background: #f5d8d5; color: var(--rojo-alerta); }
+.badge-blue  { background: #d0eaf7; color: var(--azul-mar); }
+.badge-warn  { background: #fff3cd; color: var(--amarillo-sol); }
+.badge-gray  { background: var(--arena); color: var(--texto-medio); }
+
+.auth-wrap { max-width: 420px; margin: 2rem auto; }
+.auth-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--arena-oscura); }
+.auth-tab {
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    padding: .65rem 1.2rem; margin-bottom: -1px; font-size: .86rem; font-weight: 600;
+    font-family: var(--fuente); cursor: pointer; color: var(--texto-medio); transition: all .2s;
+}
+.auth-tab.active { color: var(--azul-profundo); border-bottom-color: var(--azul-mar); }
+
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--texto-medio); font-size: .9rem; font-weight: 300; }
+.empty-state .es-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+.toast-msg {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--azul-profundo); color: var(--blanco);
+    padding: .6rem 1.2rem; border-radius: var(--radio); font-size: .84rem;
+    font-family: var(--fuente); box-shadow: var(--sombra-md); z-index: 9999;
+    opacity: 0; transition: opacity .3s; pointer-events: none;
+}
+
+.tabla-resultado tr td .badge { font-size: .68rem; }
+
+@media (max-width: 600px) {
+    .landing-cards { flex-direction: column; }
+    .product-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+    .product-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LANDING ════════════════ -->
+<div id="landing" class="landing-wrap">
+    <div class="landing-logo">Ocean<span>'s</span> Store</div>
+    <div class="landing-tagline">Artículos recreativos para playa y alberca · Tienda en línea</div>
+    <div class="landing-cards">
+        <div class="landing-card" onclick="goTo('cliente')">
+            <div class="lc-icon">🏖️</div>
+            <h2>Soy cliente</h2>
+            <p>Explora productos, crea tu pedido y realiza tu pago</p>
+        </div>
+        <div class="landing-card" onclick="goTo('admin')">
+            <div class="lc-icon">⚙️</div>
+            <h2>Administración</h2>
+            <p>Gestión de catálogo, pedidos y registros ABC</p>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════ INTERFAZ CLIENTE ════════════════ -->
+<div id="iface-cliente" style="display:none">
+    <header>
+        <div class="header-contenido">
+            <div class="header-marca" style="cursor:pointer" onclick="backToLanding()">
+                <div class="logo">🌊</div>
+                <div>
+                    <h1>Ocean's Store</h1>
+                    <div class="subtitulo">Tienda en línea</div>
+                </div>
+            </div>
+            <nav id="client-nav">
+                <button class="nav-btn active" id="ctab-shop"   onclick="clientPage('shop')">Tienda</button>
+                <button class="nav-btn"         id="ctab-cart"   onclick="clientPage('cart')">🛒 Carrito</button>
+                <button class="nav-btn"         id="ctab-orders" onclick="clientPage('orders')">Mis pedidos</button>
+            </nav>
+            <div class="client-nav-user" id="client-nav-user">
+                <span id="client-nav-name"></span>
+                <button class="btn-logout" onclick="clientLogout()">Cerrar sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- AUTH -->
+    <div class="seccion activa" id="cp-auth">
+        <div class="auth-wrap">
+            <div class="card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="atab-login" onclick="showLogin()">Iniciar sesión</button>
+                    <button class="auth-tab"         id="atab-reg"   onclick="showRegister()">Crear cuenta</button>
+                </div>
+                <div id="auth-login" style="margin-top:1rem">
+                    <div class="form-grupo"><label>Correo electrónico</label>
+                        <input type="email" id="l-email" placeholder="tu@correo.com"></div>
+                    <div class="form-grupo"><label>Nombre completo</label>
+                        <input type="text" id="l-name" placeholder="Tu nombre exacto"></div>
+                    <div id="l-msg" class="mensaje"></div>
+                    <button class="btn-submit" onclick="clientLogin()">Entrar</button>
+                </div>
+                <div id="auth-register" style="display:none;margin-top:1rem">
+                    <div class="form-grupo"><label>Nombre completo</label>
+                        <input type="text" id="r-name" placeholder="Juan Pérez"></div>
+                    <div class="form-grupo"><label>Teléfono</label>
+                        <input type="tel" id="r-tel" placeholder="4491234567"></div>
+                    <div class="form-grupo"><label>Correo electrónico</label>
+                        <input type="email" id="r-email" placeholder="tu@correo.com"></div>
+                    <div id="r-msg" class="mensaje"></div>
+                    <button class="btn-submit" onclick="clientRegister()">Registrarme</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIENDA -->
+    <div class="seccion" id="cp-shop">
+        <div class="seccion-header">
+            <h2>Catálogo</h2>
+            <div class="seccion-desc">Artículos disponibles para playa y alberca</div>
+        </div>
+        <div class="product-grid" id="product-grid"></div>
+    </div>
+
+    <!-- CARRITO / CHECKOUT -->
+    <div class="seccion" id="cp-cart">
+        <div class="seccion-header"><h2>Carrito</h2></div>
+        <div class="card">
+            <div class="checkout-steps">
+                <div class="cs-step active" id="cs1">1 · Carrito</div>
+                <div class="cs-step"        id="cs2">2 · Estado del pedido</div>
+                <div class="cs-step"        id="cs3">3 · Listo</div>
+            </div>
+
+            <!-- PASO 1: Carrito -->
+            <div id="step1">
+                <div id="cart-items"></div>
+                <div class="cart-total-row" id="cart-total"></div>
+                <div class="selector-operacion" style="margin-top:1rem">
+                    <button class="btn-op alta" onclick="proceedToEstado()">Continuar</button>
+                    <button class="btn-ejecutar" onclick="clientPage('shop')">← Seguir comprando</button>
+                </div>
+            </div>
+
+            <!-- PASO 2: Elegir estado del pedido -->
+            <div id="step2" style="display:none">
+                <div class="order-summary-box" id="pay-summary"></div>
+
+                <p style="font-size:.84rem;color:var(--texto-medio);margin-bottom:.8rem;font-weight:500">
+                    ¿Qué deseas hacer con tu pedido?
+                </p>
+
+                <!-- Opciones de estado -->
+                <div style="display:flex;flex-direction:column;gap:.55rem;margin-bottom:1rem">
+                    <button class="pay-mode-btn active" id="opt-pendiente" onclick="setEstadoMode('Pendiente')">
+                        Guardar como Pendiente — lo retomo después
+                    </button>
+                    <button class="pay-mode-btn" id="opt-confirmado" onclick="setEstadoMode('Confirmado')">
+                        Confirmar pedido — lo pago más tarde
+                    </button>
+                    <button class="pay-mode-btn" id="opt-pagado" onclick="setEstadoMode('Pagado')">
+                        Pagar ahora — confirmar y pagar en este momento
+                    </button>
+                    <button class="pay-mode-btn" id="opt-cancelado" onclick="setEstadoMode('Cancelado')"
+                        style="border-color:var(--rojo-alerta);color:var(--rojo-alerta)">
+                        Cancelar — descartar este pedido
+                    </button>
+                </div>
+
+                <!-- Descripción dinámica del modo seleccionado -->
+                <div id="estado-desc" style="background:var(--arena-clara);border:1px solid var(--arena-oscura);border-radius:var(--radio);padding:.75rem 1rem;font-size:.83rem;color:var(--texto-medio);line-height:1.65;margin-bottom:.9rem"></div>
+
+                <!-- Campos extra: solo para Pagado -->
+                <div id="pago-fields" style="display:none">
+                    <div class="form-grupo">
+                        <label>Método de pago</label>
+                        <select id="pay-method">
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="form-grupo">
+                        <label>Dirección de envío</label>
+                        <input type="text" id="pay-addr" placeholder="Calle, número, colonia, ciudad...">
+                    </div>
+                    <div class="form-grupo">
+                        <label>Paquetería</label>
+                        <select id="pay-pkg">
+                            <option>DHL</option><option>FedEx</option>
+                            <option>Estafeta</option><option>J&T</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="pay-msg" class="mensaje"></div>
+                <div class="selector-operacion" style="margin-top:1rem">
+                    <button class="btn-op alta" id="btn-confirmar-pedido" onclick="confirmPedido()">Guardar pedido</button>
+                    <button class="btn-ejecutar" onclick="backToCart()">← Volver</button>
+                </div>
+            </div>
+
+            <!-- PASO 3: Confirmación -->
+            <div id="step3" style="display:none;text-align:center;padding:2rem 0">
+                <div style="font-size:3.5rem;margin-bottom:.5rem">🎉</div>
+                <h3 style="font-family:var(--fuente-titulo);font-size:1.2rem;color:var(--verde-ok);margin-bottom:.8rem">¡Pedido procesado!</h3>
+                <div id="confirm-detail" style="background:var(--arena-clara);border:1px solid var(--arena-oscura);border-radius:var(--radio);padding:1rem 1.4rem;text-align:left;max-width:360px;margin:0 auto 1.2rem;font-size:.87rem;line-height:1.9"></div>
+                <p id="confirm-msg" style="color:var(--texto-medio);font-size:.84rem;margin-bottom:1.2rem"></p>
+                <button class="btn-submit" onclick="clientPage('orders')">Ver mis pedidos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MIS PEDIDOS -->
+    <div class="seccion" id="cp-orders">
+        <div class="seccion-header"><h2>Mis pedidos</h2></div>
+        <div class="orders-list" id="orders-list"></div>
+    </div>
+
+    <footer>
+        <div class="footer-contenido">
+            <span>Ocean's Store S.A. de C.V. · contacto@oceans.com.mx</span>
+            <span>Av. Costera del Pacífico #247, Aguascalientes</span>
+        </div>
+    </footer>
+</div>
+
+<!-- ════════════════ INTERFAZ ADMIN ════════════════ -->
+<div id="iface-admin" style="display:none">
+    <header>
+        <div class="header-contenido">
+            <div class="header-marca" style="cursor:pointer" onclick="backToLanding()">
+                <div class="logo">⚙️</div>
+                <div>
+                    <h1>Ocean's Store</h1>
+                    <div class="subtitulo">Administración</div>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" onclick="mostrarSeccion('estructura')">Estructura</button>
+                <button class="nav-btn"         onclick="mostrarSeccion('abc')">ABC</button>
+                <button class="nav-btn"         onclick="mostrarSeccion('consultas')">Consultas</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ESTRUCTURA -->
+    <div class="seccion activa" id="estructura">
+        <div class="seccion-header">
+            <h2>Estructura de la base de datos</h2>
+            <p class="seccion-desc">Modelo relacional de tienda_online — 7 tablas con sus campos y restricciones de integridad.</p>
+        </div>
+        <div class="grid-tablas" id="grid-tablas"></div>
+        <div class="card">
+            <h3>Script SQL completo</h3>
+            <p style="font-size:.84rem;color:var(--texto-medio);margin-bottom:12px;font-weight:300;">
+                Genera la base de datos <code>tienda_online</code> con todas las tablas, claves primarias, foráneas y restricciones CHECK.
+            </p>
+            <button class="btn-ejecutar" onclick="verScriptSQL()">Ver script DDL</button>
+            <div class="resultado" id="resultado-estructura"></div>
+        </div>
+    </div>
+
+    <!-- ABC -->
+    <div class="seccion" id="abc">
+        <div class="seccion-header">
+            <h2>Alta · Baja · Cambio</h2>
+            <p class="seccion-desc">Operaciones CRUD sobre cada tabla. Los campos calculados y las claves foráneas se manejan automáticamente.</p>
+        </div>
+        <div class="card">
+            <div class="selector-tabla">
+                <label>Tabla</label>
+                <select id="tablaSeleccionada" onchange="cargarFormularioABC()">
+                    <option value="">-- Selecciona una tabla --</option>
+                    <option>Categoria</option>
+                    <option>Producto</option>
+                    <option>Cliente</option>
+                    <option>Pedido</option>
+                    <option>Contiene</option>
+                    <option>Envio</option>
+                    <option>Pago</option>
+                </select>
+            </div>
+            <div class="selector-operacion" id="selector-operacion" style="display:none">
+                <button class="btn-op alta"   onclick="mostrarOperacion('alta')">Alta</button>
+                <button class="btn-op baja"   onclick="mostrarOperacion('baja')">Baja</button>
+                <button class="btn-op cambio" onclick="mostrarOperacion('cambio')">Cambio</button>
+            </div>
+        </div>
+        <div id="formulario-abc"></div>
+        <div class="mensaje" id="mensaje-abc"></div>
+        <div class="resultado" id="resultado-abc"></div>
+    </div>
+
+    <!-- CONSULTAS -->
+    <div class="seccion" id="consultas">
+        <div class="seccion-header">
+            <h2>Consultas SQL</h2>
+            <p class="seccion-desc">20 consultas organizadas por complejidad: sencillas, agrupadas, con HAVING y multitabla.</p>
+        </div>
+        <div class="tabs-consultas">
+            <button class="tab-btn active" onclick="mostrarTab('sencillas',this)">Sencillas</button>
+            <button class="tab-btn"         onclick="mostrarTab('agrupadas',this)">Agrupadas</button>
+            <button class="tab-btn"         onclick="mostrarTab('having',this)">HAVING</button>
+            <button class="tab-btn"         onclick="mostrarTab('multitabla',this)">Multitabla</button>
+        </div>
+        <div id="contenido-consultas"></div>
+        <div id="resultado-consultas"></div>
+    </div>
+
+    <footer>
+        <div class="footer-contenido">
+            <span>Ocean's Store S.A. de C.V. · Panel de administración</span>
+            <span>contacto@oceans.com.mx</span>
+        </div>
+    </footer>
+</div>
+
+<div class="toast-msg" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   NAVEGACIÓN ENTRE INTERFACES
+═══════════════════════════════════════════════════════ */
+function backToLanding() {
+    document.getElementById('landing').style.display = 'flex';
+    document.getElementById('iface-cliente').style.display = 'none';
+    document.getElementById('iface-admin').style.display   = 'none';
+}
+function goTo(who) {
+    document.getElementById('landing').style.display = 'none';
+    if (who === 'cliente') {
+        document.getElementById('iface-cliente').style.display = 'block';
+        if (!clientState.cliente) showLogin();
+        else clientPage('shop');
+    } else {
+        document.getElementById('iface-admin').style.display = 'block';
+        mostrarSeccion('estructura');
+    }
+}
+
+window.mostrarSeccion = function(id) {
+    document.querySelectorAll('#iface-admin .seccion').forEach(s => s.classList.remove('activa'));
+    document.querySelectorAll('#iface-admin nav .nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('activa');
+    const btns    = document.querySelectorAll('#iface-admin nav .nav-btn');
+    const indices = { estructura: 0, abc: 1, consultas: 2 };
+    if (btns[indices[id]]) btns[indices[id]].classList.add('active');
+    if (id === 'consultas') mostrarTab(tabActivo);
+    if (id === 'estructura') cargarTablasEstructura();
+};
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO CLIENTE
+═══════════════════════════════════════════════════════ */
+const clientState = { cliente: null, cart: [], orderId: null };
+const ICONS = ['🏄','🤿','🏊','🧴','🎣','🪁','🏐','🛟','🌊','🐠','🦭','⛵'];
+
+function clientPage(page) {
+    ['auth','shop','cart','orders'].forEach(p => {
+        document.getElementById('cp-'+p).classList.remove('activa');
+    });
+    document.getElementById('cp-'+page).classList.add('activa');
+    ['shop','cart','orders'].forEach((p,i) => {
+        document.querySelectorAll('#client-nav .nav-btn')[i].classList.remove('active');
+    });
+    const map = { shop:0, cart:1, orders:2 };
+    if (map[page] !== undefined)
+        document.querySelectorAll('#client-nav .nav-btn')[map[page]].classList.add('active');
+    if (page === 'shop')   loadShop();
+    if (page === 'orders') loadMyOrders();
+    if (page === 'cart')   renderCart();
+}
+
+/* ── AUTH ── */
+function showLogin() {
+    document.getElementById('auth-login').style.display    = 'block';
+    document.getElementById('auth-register').style.display = 'none';
+    document.getElementById('atab-login').classList.add('active');
+    document.getElementById('atab-reg').classList.remove('active');
+}
+function showRegister() {
+    document.getElementById('auth-login').style.display    = 'none';
+    document.getElementById('auth-register').style.display = 'block';
+    document.getElementById('atab-reg').classList.add('active');
+    document.getElementById('atab-login').classList.remove('active');
+}
+
+async function clientRegister() {
+    const Nombre   = document.getElementById('r-name').value.trim();
+    const Telefono = document.getElementById('r-tel').value.trim();
+    const Correo   = document.getElementById('r-email').value.trim();
+    if (!Nombre || !Telefono || !Correo) return clientMsg('r-msg','Completa todos los campos.','error');
+    const today = new Date().toISOString().split('T')[0];
+    const r = await apiFetch('/api/cliente','POST',{Nombre,Telefono,Correo,Fecha_Registro:today});
+    if (r.id) {
+        clientMsg('r-msg','¡Cuenta creada! Inicia sesión.','exito');
+        showLogin();
+        document.getElementById('l-email').value = Correo;
+        document.getElementById('l-name').value  = Nombre;
+    } else { clientMsg('r-msg', r.error||'Error al registrar.','error'); }
+}
+
+async function clientLogin() {
+    const correo = document.getElementById('l-email').value.trim();
+    const nombre = document.getElementById('l-name').value.trim();
+    if (!correo || !nombre) return clientMsg('l-msg','Ingresa correo y nombre.','error');
+    const rows = await apiFetch('/api/cliente');
+    const c = Array.isArray(rows) && rows.find(x => x.Correo === correo && x.Nombre.trim() === nombre.trim());
+    if (!c) return clientMsg('l-msg','No encontramos esa cuenta. Verifica tus datos.','error');
+    clientState.cliente = c;
+    document.getElementById('client-nav-user').style.display = 'flex';
+    document.getElementById('client-nav-name').textContent   = '👤 ' + c.Nombre;
+    clientPage('shop');
+}
+
+function clientLogout() {
+    clientState.cliente = null; clientState.cart = [];
+    document.getElementById('client-nav-user').style.display = 'none';
+    clientPage('auth'); showLogin();
+}
+
+/* ── TIENDA ──────────────────────────────────────────────────
+   Muestra TODOS los productos (disponibles y no disponibles).
+   - Disponible:    tarjeta normal, boton activo "Agregar al carrito".
+   - No disponible: insignia roja, tarjeta atenuada, boton deshabilitado.
+   ============================================================ */
+async function loadShop() {
+    const products = await apiFetch('/api/consultas/productos-completos');
+    const lista = Array.isArray(products) ? products : [];
+
+    if (!lista.length) {
+        document.getElementById('product-grid').innerHTML =
+            '<div class="empty-state"><div class="es-icon">🏖️</div><p>Sin productos disponibles por el momento.</p></div>';
+        return;
+    }
+
+    document.getElementById('product-grid').innerHTML = lista.map((p, i) => {
+        const disponible = p.Estado === 'Disponible';
+        const claseTarjeta = disponible ? '' : ' no-disponible';
+        const claseBadge   = disponible ? 'disponible' : 'no-disponible';
+        const textoBadge   = disponible ? 'Disponible' : 'No disponible';
+        const botonHTML = disponible
+            ? `<button class="pc-btn" onclick="addToCart('${esc(p.Nombre)}',${p.Precio},'${esc(p.Categoria||'')}')">
+                   + Agregar al carrito
+               </button>`
+            : `<button class="pc-btn" disabled title="Este producto no está disponible actualmente">
+                   No disponible
+               </button>`;
+
+        return `
+        <div class="product-card${claseTarjeta}">
+            <span class="pc-badge ${claseBadge}">${textoBadge}</span>
+            <div class="pc-img">${ICONS[i % ICONS.length]}</div>
+            <div class="pc-body">
+                <div class="pc-cat">${p.Categoria || 'General'}</div>
+                <div class="pc-name">${p.Nombre}</div>
+                <div class="pc-price">$${parseFloat(p.Precio).toFixed(2)}</div>
+                ${botonHTML}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function esc(s){ return String(s).replace(/'/g,"\'"); }
+
+/* ── CARRITO ── */
+function addToCart(nombre, precio, cat) {
+    if (!clientState.cliente) { alert('Inicia sesión primero.'); return; }
+    const ex = clientState.cart.find(x => x.nombre === nombre);
+    if (ex) ex.qty++;
+    else clientState.cart.push({ nombre, precio: parseFloat(precio), cat, qty: 1 });
+    showToast('¡Agregado al carrito! 🛒');
+    updateCartTab();
+}
+function cartTotal() { return clientState.cart.reduce((a,x) => a + x.qty * x.precio, 0); }
+function updateCartTab() {
+    const n = clientState.cart.reduce((a,x) => a + x.qty, 0);
+    document.querySelectorAll('#client-nav .nav-btn')[1].textContent = n > 0 ? `🛒 Carrito (${n})` : '🛒 Carrito';
+}
+
+function renderCart() {
+    resetSteps();
+    const list = document.getElementById('cart-items');
+    if (!clientState.cart.length) {
+        list.innerHTML = '<div class="empty-state"><div class="es-icon">🛒</div><p>Tu carrito está vacío.</p></div>';
+        document.getElementById('cart-total').textContent = '';
+        return;
+    }
+    list.innerHTML = clientState.cart.map((item, i) => `
+        <div class="cart-item">
+            <span class="ci-name">${item.nombre}</span>
+            <input class="ci-qty" type="number" min="1" value="${item.qty}" onchange="updateQty(${i},this.value)">
+            <span class="ci-price">$${(item.qty * item.precio).toFixed(2)}</span>
+            <button class="ci-del" onclick="removeFromCart(${i})">✕</button>
+        </div>`).join('');
+    document.getElementById('cart-total').textContent = 'Total: $' + cartTotal().toFixed(2);
+}
+function updateQty(i, v) { clientState.cart[i].qty = Math.max(1, parseInt(v)||1); renderCart(); }
+function removeFromCart(i) { clientState.cart.splice(i,1); renderCart(); updateCartTab(); }
+
+function resetSteps() {
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    ['cs1','cs2','cs3'].forEach((s,i) => {
+        document.getElementById(s).className = 'cs-step' + (i===0?' active':'');
+    });
+}
+
+function proceedToEstado() {
+    if (!clientState.cart.length) return;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('cs1').className = 'cs-step done';
+    document.getElementById('cs2').className = 'cs-step active';
+    document.getElementById('pay-summary').innerHTML =
+        clientState.cart.map(item =>
+            `<div class="os-row"><span>${item.nombre} ×${item.qty}</span><span>$${(item.qty*item.precio).toFixed(2)}</span></div>`
+        ).join('') +
+        `<div class="os-row os-total"><span>Total</span><span>$${cartTotal().toFixed(2)}</span></div>`;
+    document.getElementById('pay-addr').value = '';
+    document.getElementById('pay-msg').textContent = '';
+    document.getElementById('pay-msg').className = 'mensaje';
+    setEstadoMode('Pendiente');
+}
+
+function backToCart() {
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('cs1').className = 'cs-step active';
+    document.getElementById('cs2').className = 'cs-step';
+}
+
+/* ── Selector de estado del pedido ── */
+let estadoMode = 'Pendiente';
+const DESCS = {
+    Pendiente:  'Tu pedido quedará guardado como <strong>Pendiente</strong>. Podrás retomarlo desde <strong>Mis pedidos</strong> y elegir pagarlo cuando estés listo.',
+    Confirmado: 'Tu pedido quedará como <strong>Confirmado</strong>. El pago se registrará como <strong>Pendiente</strong> y podrás completarlo desde <strong>Mis pedidos</strong>.',
+    Pagado:     'Tu pedido se <strong>confirmará y pagará ahora</strong>. El pago quedará como <strong>Completado</strong> y se generará el envío automáticamente.',
+    Cancelado:  '<strong style="color:var(--rojo-alerta)">El pedido será cancelado y eliminado.</strong> Los productos volverán al catálogo. Esta acción no crea ningún registro en la base de datos.'
+};
+const BTN_LABELS = {
+    Pendiente:  'Guardar como Pendiente',
+    Confirmado: 'Confirmar pedido',
+    Pagado:     'Pagar ahora',
+    Cancelado:  'Cancelar pedido'
+};
+
+function setEstadoMode(modo) {
+    estadoMode = modo;
+    ['Pendiente','Confirmado','Pagado','Cancelado'].forEach(m => {
+        const btn = document.getElementById('opt-' + m.toLowerCase());
+        if (btn) btn.classList.toggle('active', m === modo);
+    });
+    document.getElementById('estado-desc').innerHTML = DESCS[modo] || '';
+    document.getElementById('pago-fields').style.display = modo === 'Pagado' ? 'block' : 'none';
+    const btnC = document.getElementById('btn-confirmar-pedido');
+    btnC.textContent = BTN_LABELS[modo];
+    btnC.style.background = modo === 'Cancelado' ? 'var(--rojo-alerta)' : '';
+    btnC.style.borderColor = modo === 'Cancelado' ? 'var(--rojo-alerta)' : '';
+}
+
+/* ── Procesar pedido según estado elegido ── */
+async function confirmPedido() {
+    const today = new Date().toISOString().split('T')[0];
+    const rowS  = 'display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px dashed var(--arena-oscura);font-size:.86rem';
+    const lblS  = 'color:var(--texto-medio)';
+    const secS  = 'font-size:.72rem;font-weight:700;color:var(--azul-claro);letter-spacing:.8px;text-transform:uppercase;margin:.6rem 0 .3rem';
+
+    // ── CANCELADO: solo limpiar carrito, sin llamadas a la API ──
+    if (estadoMode === 'Cancelado') {
+        clientState.cart = [];
+        updateCartTab();
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+        document.getElementById('cs2').className = 'cs-step done';
+        document.getElementById('cs3').className = 'cs-step active';
+        document.getElementById('confirm-detail').innerHTML =
+            `<div style="${secS}">Pedido cancelado</div>
+             <div style="${rowS};border-bottom:none"><span style="${lblS}">Estado</span><span class="badge badge-red">Cancelado</span></div>`;
+        document.getElementById('confirm-msg').textContent = 'Tu pedido fue descartado. Puedes volver a la tienda cuando quieras.';
+        return;
+    }
+
+    // ── PENDIENTE, CONFIRMADO o PAGADO: crear pedido en la BD ──
+    clientMsg('pay-msg','Procesando...','');
+    try {
+        // Paso 1: crear pedido en Pendiente
+        const rPed = await apiFetch('/api/pedido','POST',{
+            Fecha: today, Estado: 'Pendiente', ClienteIdCliente: clientState.cliente.IdCliente
+        });
+        if (!rPed.id) return clientMsg('pay-msg', rPed.error||'Error al crear pedido.','error');
+        const pedidoId = rPed.id;
+
+        // Paso 2: agregar productos (Contiene)
+        const prods = await apiFetch('/api/producto');
+        for (const item of clientState.cart) {
+            const prod = Array.isArray(prods) && prods.find(p => p.Nombre === item.nombre);
+            if (!prod) continue;
+            await apiFetch('/api/contiene','POST',{
+                PedidoIdPedido: pedidoId,
+                ProductoIdProducto: prod.IdProducto,
+                Cantidad: item.qty,
+                PrecioUnitario: item.precio
+            });
+        }
+
+        // Paso 3: recalcular Total del pedido
+        await apiFetch('/api/pedido/'+pedidoId+'/recalcular-total','PUT');
+        const todosLosPedidos = await apiFetch('/api/pedido');
+        const pedidoData = Array.isArray(todosLosPedidos) && todosLosPedidos.find(p => p.IdPedido === pedidoId);
+        const total = pedidoData ? parseFloat(pedidoData.Total) : cartTotal();
+
+        // ── PENDIENTE: el pedido se queda en Pendiente, sin pago ──
+        if (estadoMode === 'Pendiente') {
+            clientState.cart = []; updateCartTab();
+            finalizarStep3(
+                `<div style="${secS}">Pedido guardado</div>
+                 <div style="${rowS}"><span style="${lblS}">N° de pedido</span><strong style="color:var(--azul-profundo)">#${pedidoId}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Fecha</span><span>${today}</span></div>
+                 <div style="${rowS}"><span style="${lblS}">Total</span><strong style="color:var(--azul-mar)">$${total.toFixed(2)}</strong></div>
+                 <div style="${rowS};border-bottom:none"><span style="${lblS}">Estado</span><span class="badge badge-warn">Pendiente</span></div>`,
+                'Tu pedido está guardado. Puedes retomarlo desde Mis pedidos y pagarlo cuando quieras.'
+            );
+            return;
+        }
+
+        // Para Confirmado y Pagado: primero cambiar estado a Confirmado
+        await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Confirmado' });
+
+        // ── CONFIRMADO: crear pago en Pendiente, sin envío ──
+        if (estadoMode === 'Confirmado') {
+            const rPago = await apiFetch('/api/pago','POST',{
+                FechaPago: today, Monto: total, MetodoDePago: 'Tarjeta',
+                Estado: 'Pendiente', PedidoIdPedido: pedidoId
+            });
+            if (!rPago.id) return clientMsg('pay-msg', rPago.error||'Error al registrar pago.','error');
+            clientState.cart = []; updateCartTab();
+            finalizarStep3(
+                `<div style="${secS}">Pedido confirmado</div>
+                 <div style="${rowS}"><span style="${lblS}">N° de pedido</span><strong style="color:var(--azul-profundo)">#${pedidoId}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Fecha</span><span>${today}</span></div>
+                 <div style="${rowS}"><span style="${lblS}">Total</span><strong style="color:var(--azul-mar)">$${total.toFixed(2)}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Estado del pedido</span><span class="badge badge-blue">Confirmado</span></div>
+                 <div style="${secS};margin-top:.8rem">Pago</div>
+                 <div style="${rowS}"><span style="${lblS}">ID de pago</span><strong>#${rPago.id}</strong></div>
+                 <div style="${rowS};border-bottom:none"><span style="${lblS}">Estado del pago</span><span class="badge badge-warn">Pendiente</span></div>`,
+                'Tu pedido está confirmado. Completa el pago desde Mis pedidos cuando estés listo.'
+            );
+            return;
+        }
+
+        // ── PAGADO: validar campos, crear pago Completado + envío ──
+        if (estadoMode === 'Pagado') {
+            const metodo = document.getElementById('pay-method').value;
+            const addr   = document.getElementById('pay-addr').value.trim();
+            const pkg    = document.getElementById('pay-pkg').value;
+            if (!addr) return clientMsg('pay-msg','Ingresa tu dirección de envío.','error');
+
+            const rPago = await apiFetch('/api/pago','POST',{
+                FechaPago: today, Monto: total, MetodoDePago: metodo,
+                Estado: 'Completado', PedidoIdPedido: pedidoId
+            });
+            if (!rPago.id) return clientMsg('pay-msg', rPago.error||'Error al registrar pago.','error');
+
+            await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Pagado' });
+
+            const del = new Date(); del.setDate(del.getDate()+5);
+            const noGuia = 'OC'+pedidoId+Math.floor(Math.random()*9000+1000);
+            await apiFetch('/api/envio','POST',{
+                Paqueteria: pkg, NoGuia: noGuia, Estado: 'En camino',
+                FechaEntrega: del.toISOString().split('T')[0],
+                DireccionEnvio: addr, PedidoIdPedido: pedidoId
+            });
+
+            clientState.cart = []; updateCartTab();
+            finalizarStep3(
+                `<div style="${secS}">Pedido</div>
+                 <div style="${rowS}"><span style="${lblS}">N° de pedido</span><strong style="color:var(--azul-profundo)">#${pedidoId}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Fecha</span><span>${today}</span></div>
+                 <div style="${rowS}"><span style="${lblS}">Total</span><strong style="color:var(--azul-mar)">$${total.toFixed(2)}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Estado</span><span class="badge badge-green">Pagado</span></div>
+                 <div style="${secS};margin-top:.8rem">Pago</div>
+                 <div style="${rowS}"><span style="${lblS}">ID de pago</span><strong>#${rPago.id}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Método</span><span>${metodo}</span></div>
+                 <div style="${rowS}"><span style="${lblS}">Estado</span><span class="badge badge-green">Completado</span></div>
+                 <div style="${secS};margin-top:.8rem">Envío</div>
+                 <div style="${rowS}"><span style="${lblS}">Paquetería</span><span>${pkg}</span></div>
+                 <div style="${rowS}"><span style="${lblS}">N° de guía</span><strong style="color:var(--azul-mar);font-family:monospace">${noGuia}</strong></div>
+                 <div style="${rowS}"><span style="${lblS}">Estado</span><span class="badge badge-blue">En camino</span></div>
+                 <div style="${rowS}"><span style="${lblS}">Entrega estimada</span><span>${del.toISOString().split('T')[0]}</span></div>
+                 <div style="${rowS};border-bottom:none"><span style="${lblS}">Dirección</span><span style="max-width:200px;text-align:right;word-break:break-word">${addr}</span></div>`,
+                'Guarda tu número de guía para rastrear tu envío.'
+            );
+        }
+    } catch(e) {
+        clientMsg('pay-msg','Error al procesar. Intenta de nuevo.','error');
+        console.error(e);
+    }
+}
+
+function finalizarStep3(detailHtml, msg) {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    document.getElementById('cs2').className = 'cs-step done';
+    document.getElementById('cs3').className = 'cs-step active';
+    document.getElementById('confirm-detail').innerHTML = detailHtml;
+    document.getElementById('confirm-msg').textContent  = msg;
+}
+
+/* ══════════════════════════════════════════════════
+   MIS PEDIDOS
+   Muestra todos los pedidos del cliente con la
+   acción disponible según estado actual:
+   · Pendiente  → botón "Pagar este pedido" (elige Confirmado o Pagado ahora)
+   · Confirmado → pago Pendiente → formulario para completar pago
+   · Pagado     → solo info (envío ya generado)
+   · Cancelado  → etiqueta roja
+══════════════════════════════════════════════════ */
+async function loadMyOrders() {
+    if (!clientState.cliente) {
+        document.getElementById('orders-list').innerHTML =
+            '<div class="empty-state"><div class="es-icon">🔒</div><p>Inicia sesión para ver tus pedidos.</p></div>';
+        return;
+    }
+    const all  = await apiFetch('/api/consultas/pedidos-con-cliente');
+    const mine = Array.isArray(all) ? all.filter(p => p.Cliente === clientState.cliente.Nombre) : [];
+    if (!mine.length) {
+        document.getElementById('orders-list').innerHTML =
+            '<div class="empty-state"><div class="es-icon">📦</div><p>Aún no tienes pedidos.</p></div>';
+        return;
+    }
+    const envios   = await apiFetch('/api/consultas/envios-con-cliente');
+    const pagosAll = await apiFetch('/api/pago');
+
+    const badgePedido = { Pendiente:'badge-warn', Confirmado:'badge-blue', Pagado:'badge-green', Cancelado:'badge-red' };
+    const badgeEnvio  = { 'En camino':'badge-blue', 'Entregado':'badge-green', 'Retrasado':'badge-red' };
+    const badgePago   = { Pendiente:'badge-warn', Completado:'badge-green', Rechazado:'badge-red' };
+
+    document.getElementById('orders-list').innerHTML = mine.map(p => {
+        const envList = Array.isArray(envios) ? envios.filter(e => e.PedidoIdPedido === p.IdPedido) : [];
+        const env = envList[0] || null;
+        const fechaPedido = p.Fecha ? p.Fecha.split('T')[0] : '—';
+
+        let extraHtml = '';
+
+        if (p.Estado === 'Pagado' && env) {
+            // Pedido pagado: mostrar datos de envío y pago
+            const fechaEnt  = env.FechaEntrega ? env.FechaEntrega.split('T')[0] : '—';
+            const fechaPago = env.FechaPago     ? env.FechaPago.split('T')[0]    : '—';
+            extraHtml = `
+            <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--arena-oscura)">
+                <div style="font-size:.72rem;font-weight:700;color:var(--azul-claro);letter-spacing:.8px;text-transform:uppercase;margin-bottom:.4rem">Envío</div>
+                <div class="order-card-row"><span>Paquetería</span><span>${env.Paqueteria}</span></div>
+                <div class="order-card-row"><span>N° de guía</span><span style="font-family:monospace;font-weight:700;color:var(--azul-mar)">${env.NoGuia}</span></div>
+                <div class="order-card-row"><span>Estado</span><span class="badge ${badgeEnvio[env.EstadoEnvio]||'badge-gray'}">${env.EstadoEnvio}</span></div>
+                <div class="order-card-row"><span>Entrega estimada</span><span>${fechaEnt}</span></div>
+                <div class="order-card-row"><span>Dirección</span><span style="max-width:180px;text-align:right;word-break:break-word">${env.DireccionEnvio}</span></div>
+            </div>
+            <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--arena-oscura)">
+                <div style="font-size:.72rem;font-weight:700;color:var(--azul-claro);letter-spacing:.8px;text-transform:uppercase;margin-bottom:.4rem">Pago</div>
+                <div class="order-card-row"><span>Fecha de pago</span><span>${fechaPago}</span></div>
+                <div class="order-card-row"><span>Monto</span><span style="font-weight:700;color:var(--azul-mar)">$${parseFloat(env.Monto).toFixed(2)}</span></div>
+                <div class="order-card-row"><span>Método</span><span>${env.MetodoDePago}</span></div>
+                <div class="order-card-row"><span>Estado</span><span class="badge ${badgePago[env.EstadoPago]||'badge-gray'}">${env.EstadoPago}</span></div>
+            </div>`;
+
+        } else if (p.Estado === 'Confirmado') {
+            // Pedido confirmado: pago pendiente → formulario para completar
+            const pagoPend = Array.isArray(pagosAll)
+                ? pagosAll.find(pg => pg.PedidoIdPedido === p.IdPedido && pg.Estado === 'Pendiente')
+                : null;
+            if (pagoPend) {
+                extraHtml = `
+                <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--arena-oscura)">
+                    <div style="font-size:.72rem;font-weight:700;color:var(--azul-claro);letter-spacing:.8px;text-transform:uppercase;margin-bottom:.4rem">Pago pendiente</div>
+                    <div class="order-card-row"><span>Monto a pagar</span><span style="font-weight:700;color:var(--azul-mar)">$${parseFloat(pagoPend.Monto).toFixed(2)}</span></div>
+                    <div class="order-card-row" style="margin-bottom:.6rem"><span>Estado</span><span class="badge badge-warn">Pendiente</span></div>
+                    <div class="order-action-box">
+                        <div class="form-grupo">
+                            <label>Método de pago</label>
+                            <select id="opm-${p.IdPedido}">
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
+                        <div class="form-grupo">
+                            <label>Dirección de envío</label>
+                            <input type="text" id="opa-${p.IdPedido}" placeholder="Calle, número, colonia...">
+                        </div>
+                        <div class="form-grupo">
+                            <label>Paquetería</label>
+                            <select id="opk-${p.IdPedido}">
+                                <option>DHL</option><option>FedEx</option>
+                                <option>Estafeta</option><option>J&T</option>
+                            </select>
+                        </div>
+                        <div id="opm-msg-${p.IdPedido}" class="mensaje" style="font-size:.81rem;margin-bottom:.4rem"></div>
+                        <button class="btn-op alta" style="font-size:.82rem;padding:.45rem 1rem"
+                            onclick="completarPago(${p.IdPedido},${pagoPend.IdPago},${parseFloat(pagoPend.Monto)})">
+                            Completar pago
+                        </button>
+                    </div>
+                </div>`;
+            }
+
+        } else if (p.Estado === 'Pendiente') {
+            // Pedido pendiente: ofrecer Confirmar o Pagar ahora
+            extraHtml = `
+            <div class="order-action-box" style="margin-top:.7rem">
+                <p style="font-size:.81rem;color:var(--texto-medio);margin-bottom:.6rem">
+                    Este pedido está en espera. Elige qué hacer:
+                </p>
+                <div style="display:flex;flex-direction:column;gap:.4rem">
+                    <button class="pay-mode-btn" onclick="retomarPedido(${p.IdPedido},'Confirmado',${parseFloat(p.Total)})">
+                        Confirmar pedido — pagar después
+                    </button>
+                    <button class="pay-mode-btn" id="opt-pnow-${p.IdPedido}"
+                        onclick="togglePagarAhora(${p.IdPedido},${parseFloat(p.Total)})">
+                        Pagar ahora
+                    </button>
+                </div>
+                <div id="pnow-form-${p.IdPedido}" style="display:none;margin-top:.7rem">
+                    <div class="form-grupo">
+                        <label>Método de pago</label>
+                        <select id="pnm-${p.IdPedido}">
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="form-grupo">
+                        <label>Dirección de envío</label>
+                        <input type="text" id="pna-${p.IdPedido}" placeholder="Calle, número, colonia...">
+                    </div>
+                    <div class="form-grupo">
+                        <label>Paquetería</label>
+                        <select id="pnk-${p.IdPedido}">
+                            <option>DHL</option><option>FedEx</option>
+                            <option>Estafeta</option><option>J&T</option>
+                        </select>
+                    </div>
+                    <div id="pnow-msg-${p.IdPedido}" class="mensaje" style="font-size:.81rem;margin-bottom:.4rem"></div>
+                    <button class="btn-op alta" style="font-size:.82rem;padding:.45rem 1rem"
+                        onclick="retomarPedidoPagado(${p.IdPedido},${parseFloat(p.Total)})">
+                        Confirmar y pagar
+                    </button>
+                </div>
+                <div id="retomar-msg-${p.IdPedido}" class="mensaje" style="font-size:.81rem;margin-top:.4rem"></div>
+            </div>`;
+        }
+
+        return `<div class="order-card">
+            <div class="order-card-header">
+                <span class="order-card-id">Pedido #${p.IdPedido}</span>
+                <span class="badge ${badgePedido[p.Estado]||'badge-gray'}">${p.Estado}</span>
+            </div>
+            <div class="order-card-row"><span>Fecha</span><span>${fechaPedido}</span></div>
+            <div class="order-card-row"><span>Total</span><span class="order-card-total">$${parseFloat(p.Total).toFixed(2)}</span></div>
+            ${extraHtml}
+        </div>`;
+    }).join('');
+}
+
+/* Mostrar/ocultar el formulario de pagar ahora en pedido Pendiente */
+function togglePagarAhora(pedidoId, total) {
+    const form = document.getElementById('pnow-form-'+pedidoId);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+/* Pedido Pendiente → Confirmado (pagar después) */
+async function retomarPedido(pedidoId, nuevoEstado, total) {
+    const msgEl = document.getElementById('retomar-msg-'+pedidoId);
+    msgEl.textContent = 'Procesando...'; msgEl.className = 'mensaje';
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Confirmado' });
+        const rPago = await apiFetch('/api/pago','POST',{
+            FechaPago: today, Monto: total, MetodoDePago: 'Tarjeta',
+            Estado: 'Pendiente', PedidoIdPedido: pedidoId
+        });
+        if (rPago.error) { msgEl.textContent = rPago.error; msgEl.className = 'mensaje error'; return; }
+        msgEl.textContent = 'Pedido confirmado. Recargando...'; msgEl.className = 'mensaje exito';
+        setTimeout(() => loadMyOrders(), 1200);
+    } catch(e) {
+        msgEl.textContent = 'Error. Intenta de nuevo.'; msgEl.className = 'mensaje error';
+    }
+}
+
+/* Pedido Pendiente → Pagado (pagar ahora desde Mis pedidos) */
+async function retomarPedidoPagado(pedidoId, total) {
+    const metodo = document.getElementById('pnm-'+pedidoId).value;
+    const addr   = document.getElementById('pna-'+pedidoId).value.trim();
+    const pkg    = document.getElementById('pnk-'+pedidoId).value;
+    const msgEl  = document.getElementById('pnow-msg-'+pedidoId);
+    if (!addr) { msgEl.textContent = 'Ingresa tu dirección de envío.'; msgEl.className = 'mensaje error'; return; }
+    msgEl.textContent = 'Procesando...'; msgEl.className = 'mensaje';
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Confirmado' });
+        const rPago = await apiFetch('/api/pago','POST',{
+            FechaPago: today, Monto: total, MetodoDePago: metodo,
+            Estado: 'Completado', PedidoIdPedido: pedidoId
+        });
+        if (rPago.error) { msgEl.textContent = rPago.error; msgEl.className = 'mensaje error'; return; }
+        await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Pagado' });
+        const del = new Date(); del.setDate(del.getDate()+5);
+        const noGuia = 'OC'+pedidoId+Math.floor(Math.random()*9000+1000);
+        await apiFetch('/api/envio','POST',{
+            Paqueteria: pkg, NoGuia: noGuia, Estado: 'En camino',
+            FechaEntrega: del.toISOString().split('T')[0],
+            DireccionEnvio: addr, PedidoIdPedido: pedidoId
+        });
+        msgEl.textContent = 'Pago completado. Recargando...'; msgEl.className = 'mensaje exito';
+        setTimeout(() => loadMyOrders(), 1200);
+    } catch(e) {
+        msgEl.textContent = 'Error. Intenta de nuevo.'; msgEl.className = 'mensaje error';
+    }
+}
+
+/* Pedido Confirmado con pago Pendiente → completar pago + envío */
+async function completarPago(pedidoId, pagoId, monto) {
+    const metodo = document.getElementById('opm-'+pedidoId).value;
+    const addr   = document.getElementById('opa-'+pedidoId).value.trim();
+    const pkg    = document.getElementById('opk-'+pedidoId).value;
+    const msgEl  = document.getElementById('opm-msg-'+pedidoId);
+    if (!addr) { msgEl.textContent = 'Ingresa tu dirección de envío.'; msgEl.className = 'mensaje error'; return; }
+    msgEl.textContent = 'Procesando...'; msgEl.className = 'mensaje';
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        const rPago = await apiFetch('/api/pago/'+pagoId,'PUT',{
+            FechaPago: today, MetodoDePago: metodo, Estado: 'Completado'
+        });
+        if (rPago.error) { msgEl.textContent = rPago.error; msgEl.className = 'mensaje error'; return; }
+        await apiFetch('/api/pedido/'+pedidoId,'PUT',{ Estado: 'Pagado' });
+        const del = new Date(); del.setDate(del.getDate()+5);
+        const noGuia = 'OC'+pedidoId+Math.floor(Math.random()*9000+1000);
+        await apiFetch('/api/envio','POST',{
+            Paqueteria: pkg, NoGuia: noGuia, Estado: 'En camino',
+            FechaEntrega: del.toISOString().split('T')[0],
+            DireccionEnvio: addr, PedidoIdPedido: pedidoId
+        });
+        msgEl.textContent = 'Pago completado. Recargando...'; msgEl.className = 'mensaje exito';
+        setTimeout(() => loadMyOrders(), 1200);
+    } catch(e) {
+        msgEl.textContent = 'Error. Intenta de nuevo.'; msgEl.className = 'mensaje error';
+    }
+}
+
+/* ── UTILS ── */
+async function apiFetch(path, method='GET', body=null) {
+    const opts = { method, headers: {'Content-Type':'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    try {
+        const r = await fetch(path, opts);
+        return r.json();
+    } catch(e) { return { error: 'Sin conexión' }; }
+}
+
+function clientMsg(id, text, tipo) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className   = text ? `mensaje ${tipo}` : 'mensaje';
+}
+
+function showToast(text) {
+    const t = document.getElementById('toast');
+    t.textContent = text; t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+</script>
+</body>
+</html>
