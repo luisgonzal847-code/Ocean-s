@@ -11,7 +11,7 @@ const db      = require('../db');
 router.get('/productos-disponibles', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT Nombre, Precio, Estado FROM Producto WHERE Estado = 'Disponible'"
+            "SELECT Nombre, Precio, Estado FROM producto WHERE Estado = 'Disponible'"
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -21,7 +21,7 @@ router.get('/productos-disponibles', async (req, res) => {
 router.get('/clientes', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT IdCliente, Nombre, Correo, Fecha_Registro FROM Cliente'
+            'SELECT IdCliente, Nombre, Correo, Fecha_Registro FROM cliente'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -31,7 +31,7 @@ router.get('/clientes', async (req, res) => {
 router.get('/pedidos-activos', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT IdPedido, Fecha, Total, Estado FROM Pedido WHERE Estado IN ('Confirmado','Pagado')"
+            "SELECT IdPedido, Fecha, Total, Estado FROM pedido WHERE Estado IN ('Confirmado','Pagado')"
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -42,7 +42,7 @@ router.get('/pedidos-activos', async (req, res) => {
 router.get('/productos-no-disponibles', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT IdProducto, Nombre, Precio FROM Producto WHERE Estado = 'No disponible'"
+            "SELECT IdProducto, Nombre, Precio FROM producto WHERE Estado = 'No disponible'"
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -52,7 +52,7 @@ router.get('/productos-no-disponibles', async (req, res) => {
 router.get('/pagos-tarjeta', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT IdPago, FechaPago, Monto, Estado FROM Pago WHERE MetodoDePago = 'Tarjeta'"
+            "SELECT IdPago, FechaPago, Monto, Estado FROM pago WHERE MetodoDePago = 'Tarjeta'"
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -67,7 +67,7 @@ router.get('/pagos-tarjeta', async (req, res) => {
 router.get('/pedidos-por-cliente', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT ClienteIdCliente, COUNT(*) AS TotalPedidos FROM Pedido GROUP BY ClienteIdCliente'
+            'SELECT ClienteIdCliente, COUNT(*) AS TotalPedidos FROM pedido GROUP BY ClienteIdCliente'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -77,7 +77,7 @@ router.get('/pedidos-por-cliente', async (req, res) => {
 router.get('/ventas-por-estado', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT Estado, SUM(Total) AS TotalVentas FROM Pedido GROUP BY Estado'
+            'SELECT Estado, SUM(Total) AS TotalVentas FROM pedido GROUP BY Estado'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -87,7 +87,7 @@ router.get('/ventas-por-estado', async (req, res) => {
 router.get('/productos-por-categoria', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT CategoriaIdCategoria, COUNT(*) AS TotalProductos FROM Producto GROUP BY CategoriaIdCategoria'
+            'SELECT CategoriaIdCategoria, COUNT(*) AS TotalProductos FROM producto GROUP BY CategoriaIdCategoria'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -97,7 +97,7 @@ router.get('/productos-por-categoria', async (req, res) => {
 router.get('/precio-promedio-categoria', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT CategoriaIdCategoria, AVG(Precio) AS PrecioPromedio FROM Producto GROUP BY CategoriaIdCategoria'
+            'SELECT CategoriaIdCategoria, AVG(Precio) AS PrecioPromedio FROM producto GROUP BY CategoriaIdCategoria'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -107,7 +107,7 @@ router.get('/precio-promedio-categoria', async (req, res) => {
 router.get('/recaudado-por-metodo', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT MetodoDePago, SUM(Monto) AS TotalRecaudado FROM Pago GROUP BY MetodoDePago'
+            'SELECT MetodoDePago, SUM(Monto) AS TotalRecaudado FROM pago GROUP BY MetodoDePago'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -124,7 +124,7 @@ router.get('/recaudado-por-metodo', async (req, res) => {
 router.get('/clientes-frecuentes', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT ClienteIdCliente, COUNT(*) AS TotalPedidos FROM Pedido GROUP BY ClienteIdCliente HAVING COUNT(*) > 1'
+            'SELECT ClienteIdCliente, COUNT(*) AS TotalPedidos FROM pedido GROUP BY ClienteIdCliente HAVING COUNT(*) > 1'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -135,7 +135,7 @@ router.get('/clientes-frecuentes', async (req, res) => {
 router.get('/categorias-con-stock', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT CategoriaIdCategoria, COUNT(*) AS Total FROM Producto WHERE Estado = 'Disponible' GROUP BY CategoriaIdCategoria HAVING COUNT(*) > 1"
+            "SELECT CategoriaIdCategoria, COUNT(*) AS Total FROM producto WHERE Estado = 'Disponible' GROUP BY CategoriaIdCategoria HAVING COUNT(*) > 1"
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -146,7 +146,7 @@ router.get('/categorias-con-stock', async (req, res) => {
 router.get('/metodos-mayor-recaudacion', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT MetodoDePago, SUM(Monto) AS TotalRecaudado FROM Pago GROUP BY MetodoDePago HAVING SUM(Monto) > 5000'
+            'SELECT MetodoDePago, SUM(Monto) AS TotalRecaudado FROM pago GROUP BY MetodoDePago HAVING SUM(Monto) > 5000'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -156,7 +156,7 @@ router.get('/metodos-mayor-recaudacion', async (req, res) => {
 router.get('/estados-ticket-alto', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT Estado, AVG(Total) AS PromedioTotal FROM Pedido GROUP BY Estado HAVING AVG(Total) > 1000'
+            'SELECT Estado, AVG(Total) AS PromedioTotal FROM pedido GROUP BY Estado HAVING AVG(Total) > 1000'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -166,7 +166,7 @@ router.get('/estados-ticket-alto', async (req, res) => {
 router.get('/productos-mas-vendidos', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT ProductoIdProducto, SUM(Cantidad) AS TotalVendido FROM Contiene GROUP BY ProductoIdProducto HAVING SUM(Cantidad) > 5'
+            'SELECT ProductoIdProducto, SUM(Cantidad) AS TotalVendido FROM contiene GROUP BY ProductoIdProducto HAVING SUM(Cantidad) > 5'
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -182,8 +182,8 @@ router.get('/pedidos-con-cliente', async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT P.IdPedido, C.Nombre AS Cliente, P.Fecha, P.Total, P.Estado
-             FROM Pedido P
-             INNER JOIN Cliente C ON P.ClienteIdCliente = C.IdCliente`
+             FROM pedido P
+             INNER JOIN cliente C ON P.ClienteIdCliente = C.IdCliente`
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -196,9 +196,9 @@ router.get('/detalle-pedido', async (req, res) => {
         const [rows] = await db.query(
             `SELECT P.IdPedido, PR.Nombre AS Producto, C.Cantidad, C.PrecioUnitario,
                     (C.Cantidad * C.PrecioUnitario) AS Subtotal
-             FROM Contiene C
-             INNER JOIN Pedido P   ON C.PedidoIdPedido     = P.IdPedido
-             INNER JOIN Producto PR ON C.ProductoIdProducto = PR.IdProducto`
+             FROM contiene C
+             INNER JOIN pedido P   ON C.PedidoIdPedido     = P.IdPedido
+             INNER JOIN producto PR ON C.ProductoIdProducto = PR.IdProducto`
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -213,10 +213,10 @@ router.get('/envios-con-cliente', async (req, res) => {
                     E.Paqueteria, E.NoGuia, E.Estado AS EstadoEnvio,
                     E.FechaEntrega, E.DireccionEnvio,
                     PA.IdPago, PA.FechaPago, PA.Monto, PA.MetodoDePago, PA.Estado AS EstadoPago
-             FROM Envio E
-             INNER JOIN Pedido P  ON E.PedidoIdPedido   = P.IdPedido
-             INNER JOIN Cliente C ON P.ClienteIdCliente = C.IdCliente
-             LEFT  JOIN Pago PA   ON PA.PedidoIdPedido  = P.IdPedido`
+             FROM envio E
+             INNER JOIN pedido P  ON E.PedidoIdPedido   = P.IdPedido
+             INNER JOIN cliente C ON P.ClienteIdCliente = C.IdCliente
+             LEFT  JOIN pago PA   ON PA.PedidoIdPedido  = P.IdPedido`
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -228,8 +228,8 @@ router.get('/productos-completos', async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT PR.Nombre, PR.Precio, PR.Estado, CA.Nombre AS Categoria
-             FROM Producto PR
-             INNER JOIN Categoria CA ON PR.CategoriaIdCategoria = CA.IdCategoria`
+             FROM producto PR
+             INNER JOIN categoria CA ON PR.CategoriaIdCategoria = CA.IdCategoria`
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -241,9 +241,9 @@ router.get('/pagos-con-cliente', async (req, res) => {
         const [rows] = await db.query(
             `SELECT C.Nombre AS Cliente, PA.FechaPago, PA.Monto,
                     PA.MetodoDePago, PA.Estado, P.Total AS TotalPedido
-             FROM Pago PA
-             INNER JOIN Pedido P  ON PA.PedidoIdPedido  = P.IdPedido
-             INNER JOIN Cliente C ON P.ClienteIdCliente = C.IdCliente`
+             FROM pago PA
+             INNER JOIN pedido P  ON PA.PedidoIdPedido  = P.IdPedido
+             INNER JOIN cliente C ON P.ClienteIdCliente = C.IdCliente`
         );
         res.json(rows);
     } catch (e) { res.status(500).json({ error: e.message }); }

@@ -10,7 +10,7 @@ const db      = require('../db');
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT IdCategoria, Nombre, Descripcion FROM Categoria ORDER BY Nombre'
+            'SELECT IdCategoria, Nombre, Descripcion FROM categoria ORDER BY Nombre'
         );
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Todos los campos son requeridos.' });
     try {
         const [resultado] = await db.query(
-            'INSERT INTO Categoria (Nombre, Descripcion) VALUES (?, ?)',
+            'INSERT INTO categoria (Nombre, Descripcion) VALUES (?, ?)',
             [Nombre, Descripcion]
         );
         res.status(201).json({ mensaje: 'Categoría creada.', id: resultado.insertId });
@@ -46,23 +46,23 @@ router.delete('/:id', async (req, res) => {
 
         // 1. Obtener los productos de esta categoría
         const [productos] = await conn.query(
-            'SELECT IdProducto FROM Producto WHERE CategoriaIdCategoria = ?', [id]
+            'SELECT IdProducto FROM producto WHERE CategoriaIdCategoria = ?', [id]
         );
         const productoIds = productos.map(p => p.IdProducto);
 
         // 2. Eliminar de Contiene todos los registros que usen esos productos
         if (productoIds.length > 0) {
             await conn.query(
-                `DELETE FROM Contiene WHERE ProductoIdProducto IN (${productoIds.map(() => '?').join(',')})`,
+                `DELETE FROM contiene WHERE ProductoIdProducto IN (${productoIds.map(() => '?').join(',')})`,
                 productoIds
             );
         }
 
         // 3. Eliminar los productos de la categoría
-        await conn.query('DELETE FROM Producto WHERE CategoriaIdCategoria = ?', [id]);
+        await conn.query('DELETE FROM producto WHERE CategoriaIdCategoria = ?', [id]);
 
         // 4. Eliminar la categoría
-        const [resultado] = await conn.query('DELETE FROM Categoria WHERE IdCategoria = ?', [id]);
+        const [resultado] = await conn.query('DELETE FROM categoria WHERE IdCategoria = ?', [id]);
         if (resultado.affectedRows === 0) {
             await conn.rollback();
             return res.status(404).json({ error: 'Categoría no encontrada.' });
@@ -91,7 +91,7 @@ router.put('/:id', async (req, res) => {
     const valores = [...Object.values(campos), req.params.id];
     try {
         const [resultado] = await db.query(
-            `UPDATE Categoria SET ${setSQL} WHERE IdCategoria = ?`, valores
+            `UPDATE categoria SET ${setSQL} WHERE IdCategoria = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Categoría no encontrada.' });

@@ -17,7 +17,7 @@ const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query(
-            'SELECT IdCliente, Nombre, Correo FROM Cliente ORDER BY Nombre'
+            'SELECT IdCliente, Nombre, Correo FROM cliente ORDER BY Nombre'
         );
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 
     try {
         const [resultado] = await db.query(
-            'INSERT INTO Cliente (Nombre, Telefono, Correo, Fecha_Registro) VALUES (?, ?, ?, ?)',
+            'INSERT INTO cliente (Nombre, Telefono, Correo, Fecha_Registro) VALUES (?, ?, ?, ?)',
             [Nombre, Telefono, Correo, Fecha_Registro]
         );
         res.status(201).json({ mensaje: 'Cliente registrado.', id: resultado.insertId });
@@ -64,19 +64,19 @@ router.delete('/:id', async (req, res) => {
     try {
         // Obtener los IDs de los pedidos del cliente para la cascada
         const [pedidos] = await db.query(
-            'SELECT IdPedido FROM Pedido WHERE ClienteIdCliente = ?', [id]
+            'SELECT IdPedido FROM pedido WHERE ClienteIdCliente = ?', [id]
         );
         const pedidoIds = pedidos.map(p => p.IdPedido);
 
         if (pedidoIds.length > 0) {
             const ph = pedidoIds.map(() => '?').join(',');
-            await db.query(`DELETE FROM Contiene WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
-            await db.query(`DELETE FROM Pago    WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
-            await db.query(`DELETE FROM Envio   WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
-            await db.query(`DELETE FROM Pedido  WHERE ClienteIdCliente = ?`, [id]);
+            await db.query(`DELETE FROM contiene WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
+            await db.query(`DELETE FROM pago    WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
+            await db.query(`DELETE FROM envio   WHERE PedidoIdPedido IN (${ph})`, pedidoIds);
+            await db.query(`DELETE FROM pedido  WHERE ClienteIdCliente = ?`, [id]);
         }
 
-        const [resultado] = await db.query('DELETE FROM Cliente WHERE IdCliente = ?', [id]);
+        const [resultado] = await db.query('DELETE FROM cliente WHERE IdCliente = ?', [id]);
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Cliente no encontrado.' });
         res.json({ mensaje: `Cliente ${id} eliminado junto con sus pedidos.` });
@@ -103,7 +103,7 @@ router.put('/:id', async (req, res) => {
     const valores = [...Object.values(campos), req.params.id];
     try {
         const [resultado] = await db.query(
-            `UPDATE Cliente SET ${setSQL} WHERE IdCliente = ?`, valores
+            `UPDATE cliente SET ${setSQL} WHERE IdCliente = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Cliente no encontrado.' });

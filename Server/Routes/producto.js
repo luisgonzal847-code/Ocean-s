@@ -17,7 +17,7 @@ const ESTADOS_VALIDOS = ['Disponible', 'No disponible'];
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT IdProducto, Nombre, Precio FROM Producto WHERE Estado = 'Disponible' ORDER BY Nombre"
+            "SELECT IdProducto, Nombre, Precio FROM producto WHERE Estado = 'Disponible' ORDER BY Nombre"
         );
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
 
     try {
         const [resultado] = await db.query(
-            'INSERT INTO Producto (Nombre, Precio, Estado, CategoriaIdCategoria) VALUES (?, ?, ?, ?)',
+            'INSERT INTO producto (Nombre, Precio, Estado, CategoriaIdCategoria) VALUES (?, ?, ?, ?)',
             [Nombre, Precio, Estado, CategoriaIdCategoria]
         );
         res.status(201).json({ mensaje: 'Producto creado.', id: resultado.insertId });
@@ -57,8 +57,8 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        await db.query('DELETE FROM Contiene WHERE ProductoIdProducto = ?', [id]);
-        const [resultado] = await db.query('DELETE FROM Producto WHERE IdProducto = ?', [id]);
+        await db.query('DELETE FROM contiene WHERE ProductoIdProducto = ?', [id]);
+        const [resultado] = await db.query('DELETE FROM producto WHERE IdProducto = ?', [id]);
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Producto no encontrado.' });
         res.json({ mensaje: `Producto ${id} eliminado junto con sus registros en pedidos.` });
@@ -86,7 +86,7 @@ router.put('/:id', async (req, res) => {
     const valores = [...Object.values(campos), req.params.id];
     try {
         const [resultado] = await db.query(
-            `UPDATE Producto SET ${setSQL} WHERE IdProducto = ?`, valores
+            `UPDATE producto SET ${setSQL} WHERE IdProducto = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Producto no encontrado.' });

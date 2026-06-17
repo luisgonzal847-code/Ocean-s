@@ -15,7 +15,7 @@ const ESTADOS_ENVIO_VALIDOS     = ['En camino', 'Entregado', 'Retrasado'];
 // ============================================================
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Envio ORDER BY IdEnvio DESC');
+        const [rows] = await db.query('SELECT * FROM envio ORDER BY IdEnvio DESC');
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
     try {
         // IC-2: Verificar estado del pedido asociado antes de crear el envío
         const [pedidos] = await db.query(
-            'SELECT Estado FROM Pedido WHERE IdPedido = ?', [PedidoIdPedido]
+            'SELECT Estado FROM pedido WHERE IdPedido = ?', [PedidoIdPedido]
         );
         if (pedidos.length === 0)
             return res.status(404).json({ error: 'El pedido no existe.' });
@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
             });
 
         const [resultado] = await db.query(
-            'INSERT INTO Envio (Paqueteria, NoGuia, Estado, FechaEntrega, DireccionEnvio, PedidoIdPedido) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO envio (Paqueteria, NoGuia, Estado, FechaEntrega, DireccionEnvio, PedidoIdPedido) VALUES (?, ?, ?, ?, ?, ?)',
             [Paqueteria, NoGuia, Estado, FechaEntrega, DireccionEnvio, PedidoIdPedido]
         );
         res.status(201).json({ mensaje: 'Envío creado.', id: resultado.insertId });
@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const [resultado] = await db.query(
-            'DELETE FROM Envio WHERE IdEnvio = ?', [req.params.id]
+            'DELETE FROM envio WHERE IdEnvio = ?', [req.params.id]
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Envío no encontrado.' });
@@ -96,7 +96,7 @@ router.put('/:id', async (req, res) => {
     const valores = [...Object.values(campos), req.params.id];
     try {
         const [resultado] = await db.query(
-            `UPDATE Envio SET ${setSQL} WHERE IdEnvio = ?`, valores
+            `UPDATE envio SET ${setSQL} WHERE IdEnvio = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Envío no encontrado.' });

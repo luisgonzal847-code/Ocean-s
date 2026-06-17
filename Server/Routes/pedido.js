@@ -19,11 +19,11 @@ const ESTADOS_VALIDOS = ['Pendiente', 'Confirmado', 'Pagado', 'Cancelado'];
 async function recalcularTotal(idPedido) {
     const [[{ total }]] = await db.query(
         `SELECT COALESCE(SUM(Subtotal), 0) AS total
-         FROM Contiene WHERE PedidoIdPedido = ?`,
+         FROM contiene WHERE PedidoIdPedido = ?`,
         [idPedido]
     );
     await db.query(
-        'UPDATE Pedido SET Total = ? WHERE IdPedido = ?',
+        'UPDATE pedido SET Total = ? WHERE IdPedido = ?',
         [total, idPedido]
     );
     return parseFloat(total);
@@ -37,8 +37,8 @@ router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT P.IdPedido, C.Nombre AS Cliente, P.Fecha, P.Total, P.Estado
-             FROM Pedido P
-             INNER JOIN Cliente C ON P.ClienteIdCliente = C.IdCliente
+             FROM pedido P
+             INNER JOIN cliente C ON P.ClienteIdCliente = C.IdCliente
              ORDER BY P.IdPedido DESC`
         );
         res.json(rows);
@@ -68,7 +68,7 @@ router.post('/', async (req, res) => {
 
     try {
         const [resultado] = await db.query(
-            'INSERT INTO Pedido (Fecha, Total, Estado, ClienteIdCliente) VALUES (?, 0, ?, ?)',
+            'INSERT INTO pedido (Fecha, Total, Estado, ClienteIdCliente) VALUES (?, 0, ?, ?)',
             [Fecha, Estado, ClienteIdCliente]
         );
         res.status(201).json({
@@ -86,7 +86,7 @@ router.post('/', async (req, res) => {
 router.put('/:id/recalcular-total', async (req, res) => {
     const id = req.params.id;
     try {
-        const [existe] = await db.query('SELECT IdPedido FROM Pedido WHERE IdPedido = ?', [id]);
+        const [existe] = await db.query('SELECT IdPedido FROM pedido WHERE IdPedido = ?', [id]);
         if (existe.length === 0)
             return res.status(404).json({ error: 'Pedido no encontrado.' });
 
@@ -104,10 +104,10 @@ router.put('/:id/recalcular-total', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        await db.query('DELETE FROM Contiene WHERE PedidoIdPedido = ?', [id]);
-        await db.query('DELETE FROM Pago    WHERE PedidoIdPedido = ?', [id]);
-        await db.query('DELETE FROM Envio   WHERE PedidoIdPedido = ?', [id]);
-        const [resultado] = await db.query('DELETE FROM Pedido WHERE IdPedido = ?', [id]);
+        await db.query('DELETE FROM contiene WHERE PedidoIdPedido = ?', [id]);
+        await db.query('DELETE FROM pago    WHERE PedidoIdPedido = ?', [id]);
+        await db.query('DELETE FROM envio   WHERE PedidoIdPedido = ?', [id]);
+        const [resultado] = await db.query('DELETE FROM pedido WHERE IdPedido = ?', [id]);
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Pedido no encontrado.' });
         res.json({ mensaje: `Pedido ${id} eliminado junto con sus ítems, pagos y envíos.` });
@@ -141,7 +141,7 @@ router.put('/:id', async (req, res) => {
     const valores = [...Object.values(campos), req.params.id];
     try {
         const [resultado] = await db.query(
-            `UPDATE Pedido SET ${setSQL} WHERE IdPedido = ?`, valores
+            `UPDATE pedido SET ${setSQL} WHERE IdPedido = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Pedido no encontrado.' });

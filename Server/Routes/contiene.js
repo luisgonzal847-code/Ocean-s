@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT PedidoIdPedido, ProductoIdProducto, Cantidad, PrecioUnitario, Subtotal
-             FROM Contiene ORDER BY PedidoIdPedido, ProductoIdProducto`
+             FROM contiene ORDER BY PedidoIdPedido, ProductoIdProducto`
         );
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
 
     try {
         await db.query(
-            'INSERT INTO Contiene (PedidoIdPedido, ProductoIdProducto, Cantidad, PrecioUnitario, Subtotal) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO contiene (PedidoIdPedido, ProductoIdProducto, Cantidad, PrecioUnitario, Subtotal) VALUES (?, ?, ?, ?, ?)',
             [PedidoIdPedido, ProductoIdProducto, cantidadNum, PrecioUnitario, subtotal]
         );
 
@@ -81,7 +81,7 @@ router.delete('/:pedidoId/:productoId', async (req, res) => {
     const { pedidoId, productoId } = req.params;
     try {
         const [resultado] = await db.query(
-            'DELETE FROM Contiene WHERE PedidoIdPedido = ? AND ProductoIdProducto = ?',
+            'DELETE FROM contiene WHERE PedidoIdPedido = ? AND ProductoIdProducto = ?',
             [pedidoId, productoId]
         );
         if (resultado.affectedRows === 0)
@@ -120,7 +120,7 @@ router.put('/:pedidoId/:productoId', async (req, res) => {
     try {
         // Obtener los valores actuales para recalcular el Subtotal con datos completos
         const [[actual]] = await db.query(
-            'SELECT Cantidad, PrecioUnitario FROM Contiene WHERE PedidoIdPedido = ? AND ProductoIdProducto = ?',
+            'SELECT Cantidad, PrecioUnitario FROM contiene WHERE PedidoIdPedido = ? AND ProductoIdProducto = ?',
             [pedidoId, productoId]
         );
         if (!actual)

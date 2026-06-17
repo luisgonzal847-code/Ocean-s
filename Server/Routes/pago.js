@@ -17,7 +17,7 @@ const ESTADOS_VALIDOS = ['Pendiente', 'Completado', 'Rechazado'];
 // ============================================================
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Pago ORDER BY IdPago DESC');
+        const [rows] = await db.query('SELECT * FROM pago ORDER BY IdPago DESC');
         res.json(rows);
     } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
         // Validación de monto: debe coincidir con el Total del pedido
         // para garantizar consistencia entre Pedido y Pago.
         const [pedidos] = await db.query(
-            'SELECT Total FROM Pedido WHERE IdPedido = ?', [PedidoIdPedido]
+            'SELECT Total FROM pedido WHERE IdPedido = ?', [PedidoIdPedido]
         );
         if (pedidos.length === 0)
             return res.status(404).json({ error: 'El pedido no existe.' });
@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
             });
 
         const [resultado] = await db.query(
-            'INSERT INTO Pago (FechaPago, Monto, MetodoDePago, Estado, PedidoIdPedido) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO pago (FechaPago, Monto, MetodoDePago, Estado, PedidoIdPedido) VALUES (?, ?, ?, ?, ?)',
             [FechaPago, Monto, MetodoDePago, Estado, PedidoIdPedido]
         );
         res.status(201).json({ mensaje: 'Pago registrado.', id: resultado.insertId });
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const [resultado] = await db.query(
-            'DELETE FROM Pago WHERE IdPago = ?', [req.params.id]
+            'DELETE FROM pago WHERE IdPago = ?', [req.params.id]
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Pago no encontrado.' });
@@ -130,7 +130,7 @@ router.put('/:id', async (req, res) => {
 
     try {
         const [resultado] = await db.query(
-            `UPDATE Pago SET ${setSQL} WHERE IdPago = ?`, valores
+            `UPDATE pago SET ${setSQL} WHERE IdPago = ?`, valores
         );
         if (resultado.affectedRows === 0)
             return res.status(404).json({ error: 'Pago no encontrado.' });
