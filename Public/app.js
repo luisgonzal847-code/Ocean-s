@@ -1,6 +1,6 @@
 const API = window.location.hostname === 'localhost'
     ? 'http://localhost:3000/api'
-    : 'https://tu-backend.onrender.com/api';
+    : '/api';
     
 let tabActivo = 'sencillas';
 
