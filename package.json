@@ -2,10 +2,10 @@
   "name": "oceans-db",
   "version": "1.0.0",
   "description": "Gestor de base de datos para Ocean's",
-  "main": "server/server.js",
+  "main": "Server/server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev":   "nodemon server/server.js"
+    "start": "node Server/server.js",
+    "dev":   "nodemon Server/server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
