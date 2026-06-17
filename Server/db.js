@@ -10,7 +10,7 @@ const conexion = mysql.createPool({
 
 conexion.getConnection((err, conn) => {
     if (err) {
-        console.error('Error al conectar con MySQL:', err.message);
+        console.error('Error al conectar con MySQL:', err.message, err.code, err.errno);
         return;
     }
     console.log('Conexión exitosa con la base de datos tienda_online');
